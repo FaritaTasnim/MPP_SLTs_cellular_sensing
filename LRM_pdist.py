@@ -33,12 +33,10 @@ jpds_LRM, all_upds_LRM, all_spds_LRM = evolve_whole_system_prob_dists(jpd_LRM_0,
 print('Evolved probability distributions over time')
 
 
+
+
 # *********************************** Sanity Checks ************************************************
 
-# later, figure out which is faster, getting the unit marginals from evolving the system prob dist,
-# or evolving the marginal unit prob dists directly themselves
-
-# come back to trying binom and uniform later
 
 # dist_types_LRM = {"l": randint,"r1": binom, "m": binom, "r2": binom}
 # # takes a joint state and constructs the parameters for the initial conditional distributions

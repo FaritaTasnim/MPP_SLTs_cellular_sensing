@@ -35,7 +35,7 @@ D_l = 0.1
 D_r1 = 4*w_r/Nr1
 B_r1 = D_r1/D_l
 
-print(sqrt(1 + ((v_r)**2)/(B_r1)))
+# print(sqrt(1 + ((v_r)**2)/(B_r1)))
 
 # v_mminus = sqrt(1 + ((v_r)**2)/(B_r1))
 # print(v_mminus)
@@ -74,7 +74,7 @@ jss_LRM = get_joint_states(all_ss_LRM)
 uss_LRM = [get_marginal_joint_states(u, all_ss_LRM, suborder_LRM) for u in units_LRM]
 # uss_LRM2 = [get_marginal_joint_states(u, all_ss_LRM, suborder_LRM) for u in units_LRM2]
 
-print('num joint states', len(jss_LRM))
+# print('num joint states', len(jss_LRM))
 
 # ******************************** Time Evolution Parameters ***************************************
 
@@ -98,12 +98,5 @@ rmf_m = {	1: lambda js: (js["r1"]*kplus + v_mminus) * (Nm - js["m"]),
     		-1: lambda js: (js["r1"]*kminus + v_mplus) * (js["m"])}
 rmf_r2 = {	1: lambda js: (w_r*exp(DeltaF(js["l"]))) * (Nr2 - js["r2"]),
     		-1: lambda js: (w_r * (js["r2"]))}
-# rmfs_LRM = [rmf_l, rmf_r1, rmf_m, rmf_r2]
 rmfs_LRM = [rmf_m, rmf_r1, rmf_l, rmf_r2]
 
-
-
-# *********************************** Sanity Checks ************************************************
-
-# for edges in bin_edges_LRM:
-# 	print(edges)

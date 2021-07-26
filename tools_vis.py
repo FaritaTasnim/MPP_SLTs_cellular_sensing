@@ -1,14 +1,6 @@
 from matplotlib import pyplot as plt
 import seaborn as sns
 
-# subsystem probability distributions over time
-# EP versus classical EP bound vs MPP EP bound
-# tau versus classical tau bound vs MPP tau bound
-
-import seaborn as sns
-
-# port all this shit into full seaborn if possible, later!
-
 def plot_bounds(ts, actual, actual_name, bounds, bound_names, p, name, size):
 	'''
 		inputs: 
@@ -19,8 +11,10 @@ def plot_bounds(ts, actual, actual_name, bounds, bound_names, p, name, size):
 			bounds: (list) of lists of bounds to plot, with bounds[i] a list of bounds for 
 				actuals[i] and bounds[i][j] the jth type of bound for actuals[i],
 			bound_names: (list) of list of strings labeling the bounds,
-			colors: (list) of colors to cycle through when plotting each subplot of actual value vs.
-				bounds for that value
+			p: (list) of colors to cycle through when plotting each subplot of actual value vs.
+				bounds for that value,
+			name: name to save the figure as,
+			size: desired size of the figure
 		outputs: 
 			None. This functions plots bounds versus actual values.
 	'''

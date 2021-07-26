@@ -1,5 +1,4 @@
 import numpy as np
-# from LRM_properties import*
 from scipy.stats import norm, binom, randint, uniform
 from scipy.linalg import expm
 
