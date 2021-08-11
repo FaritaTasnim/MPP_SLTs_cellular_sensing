@@ -30,12 +30,23 @@ Lu, Aut, EPrateu, Su = unit_calcs[:,0,:], unit_calcs[:,1,:], unit_calcs[:,2,:], 
 Au = np.array([time_avg(times_LRM, Aut[u]) for u in unit_iter])
 EPu = np.array([integrate(times_LRM, eprateu) for eprateu in EPrateu])
 
-def get_subsystem_contribs_to_unit(all_subsystem_contribs, unit):
-	return np.array([all_subsystem_contribs[suborder_LRM[s]] for s in units_LRM[uind[unit]]])
+ss_iter_units = []
+Li_units = []
+Ai_units = []
+EPi_units = []
+for unit in uind.keys():
+	ss_iter_unit = range(len(units_LRM[uind[unit]]))
+	ss_iter_units.append(ss_iter_unit)
+	Li_unit = np.array([L_t(all_spds_LRM[suborder_LRM[s]]) for s in units_LRM[uind[unit]]])
+	Li_units.append(Li_unit)
 
-Ai_units = np.array([get_subsystem_contribs_to_unit(Ai, u) for u in uind.keys()])
-EPi_units = np.array([get_subsystem_contribs_to_unit(EPi, u) for u in uind.keys()])
-
+	sub_calcs_unit = np.array([get_L_A_EPrate_S_ts(all_upds_LRM[uind[unit]], Ks_LRM[uind[unit]][s]) for s in ss_iter_unit])
+	Lx_unit, Ait_unit, EPratei_unit, Si_unit = sub_calcs_unit[:,0,:], sub_calcs_unit[:,1,:], sub_calcs_unit[:,2,:], sub_calcs_unit[:,3,:]
+	Ai_unit = np.array([time_avg(times_LRM, ait) for ait in Ait_unit])
+	EPi_unit = np.array([integrate(times_LRM, epratei) for epratei in EPratei_unit])
+	Ai_units.append(Ai_unit)
+	EPi_units.append(EPi_unit)
+Ai_units, EPi_units, Li_units = np.array(Ai_units), np.array(EPi_units), np.array(Li_units)
 
 # ******************************** All Speed Limit Bounds ******************************************
 
@@ -59,32 +70,102 @@ mpp_phi_tau_bounds, mpp_omega_tau_bounds, mpp_alpha_tau_bounds, mpp_beta_tau_bou
 print('Calculated mpp unit bounds')
 
 
-subsystem_local_tau_bounds = np.array([np.array([classical_tau_bound(li, ai, epi) 
+subsystem_local_tau_bounds_N = np.array([np.array([classical_tau_bound(li, ai, epi) 
 								for li, ai, epi in zip(Li[s][1:], Ai[s][1:], EPi[s][1:])]) 
 									for s in ss_iter])
 
-sub_1_tau_bounds, sub_2_tau_bounds, sub_3_tau_bounds, sub_4_tau_bounds = subsystem_local_tau_bounds
+sub_1_tau_bounds_N, sub_2_tau_bounds_N, sub_3_tau_bounds_N, sub_4_tau_bounds_N = subsystem_local_tau_bounds_N
+
+subsystem_local_tau_bounds_units = np.array([np.array([np.array([classical_tau_bound(li, ai, epi) 
+								for li, ai, epi in zip(Li_units[u][s][1:], Ai_units[u][s][1:], EPi_units[u][s][1:])]) 
+									for s in ss_iter_units[u]]) for u in unit_iter])
+
+sub_3_tau_bounds_phi = subsystem_local_tau_bounds_units[0][0]
+sub_3_tau_bounds_omega, sub_2_tau_bounds_omega, sub_1_tau_bounds_omega = subsystem_local_tau_bounds_units[1]
+sub_3_tau_bounds_alpha, sub_4_tau_bounds_alpha = subsystem_local_tau_bounds_units[2]
+sub_3_tau_bounds_beta, sub_2_tau_bounds_beta = subsystem_local_tau_bounds_units[3]
+sub_3_tau_bounds_psi, sub_2_tau_bounds_psi, sub_4_tau_bounds_psi = subsystem_local_tau_bounds_units[4]
+
+# 3 max is phi,
+# 2 max is beta
+# 1 max is omega
+# 4 max is alpha
 
 
 print('Calculated mpp subsystem-local bounds')
-
-
-# unit_local_tau_bounds = np.array([np.array([classical_tau_bound(l, a, ep) 
-# 								for l, a, ep in zip(Lu[u][1:], Au[u][1:], EPu[u][1:])]) 
-# 									for u in unit_iter])
-
-# phi_tau_bounds, omega_tau_bounds, alpha_tau_bounds, beta_tau_bounds, psi_tau_bounds = unit_local_tau_bounds
-
-
-# print('Calculated unit-local bounds')
 
 
 print('Calculated all bounds')
 
 
 
+# Checking unit that gives minimum denominator for Eq. 16 for each subsystem
 
+# *************************************************************************************************
 
+# def get_contribs_for_i(quant_N, quant_units, i):
+# 	out = [('N', quant_N[suborder_LRM[i]])]
+# 	for u in uind.keys():
+# 		unit = units_LRM[uind[u]]
+# 		if i in unit:
+# 			out.append((u, quant_units[uind[u]][unit.index(i)]))
+# 	return out
+
+# EPs_3, As_3 = get_contribs_for_i(EPi, EPi_units, 'l'), get_contribs_for_i(Ai, Ai_units, 'l')
+
+# for t in range(len(times_LRM)):
+# 	prod = 9999999
+# 	minim = 'None'
+# 	for ep, a in zip(EPs_3, As_3):
+# 		den = ep[1][t]*a[1][t]
+# 		if den < prod:
+# 			prod = den
+# 			minim = ep[0]
+# 	print(t, minim, prod)
+
+# print('')
+
+# EPs_2, As_2 = get_contribs_for_i(EPi, EPi_units, 'r1'), get_contribs_for_i(Ai, Ai_units, 'r1')
+
+# for t in range(len(times_LRM)):
+# 	prod = 9999999
+# 	minim = 'None'
+# 	for ep, a in zip(EPs_2, As_2):
+# 		den = ep[1][t]*a[1][t]
+# 		if den < prod:
+# 			prod = den
+# 			minim = ep[0]
+# 	print(t, minim, prod)
+
+# print('')
+
+# EPs_1, As_1 = get_contribs_for_i(EPi, EPi_units, 'm'), get_contribs_for_i(Ai, Ai_units, 'm')
+
+# for t in range(len(times_LRM)):
+# 	prod = 9999999
+# 	minim = 'None'
+# 	for ep, a in zip(EPs_1, As_1):
+# 		den = ep[1][t]*a[1][t]
+# 		if den < prod:
+# 			prod = den
+# 			minim = ep[0]
+# 	print(t, minim, prod)
+
+# print('')
+
+# EPs_4, As_4 = get_contribs_for_i(EPi, EPi_units, 'r2'), get_contribs_for_i(Ai, Ai_units, 'r2')
+
+# for t in range(len(times_LRM)):
+# 	prod = 9999999
+# 	minim = 'None'
+# 	for ep, a in zip(EPs_4, As_4):
+# 		den = ep[1][t]*a[1][t]
+# 		if den < prod:
+# 			prod = den
+# 			minim = ep[0]
+# 	print(t, minim, prod)
+
+# print('')
 
 
 
@@ -92,17 +173,9 @@ print('Calculated all bounds')
 
 # *********************************** Sanity Checks ************************************************
 
-#---quick, very important sanity check to ensure that the subsystem contributions to
-#------global and local quantities are the same!
+# for a, b in zip(Li_units[1][0], Li[2]):
+# 	print(a,b)
 
-# ss_itero = range(len(units_LRM[uind['omega']]))
-# sub_calcso = np.array([get_L_A_EPrate_S_ts(all_upds_LRM[uind['omega']], Ks_LRM[uind['omega']][s]) for s in ss_itero])
-# Lxo, Aito, EPrateio, Sio = sub_calcso[:,0,:], sub_calcso[:,1,:], sub_calcso[:,2,:], sub_calcso[:,3,:]
-# Aio = np.array([time_avg(times_LRM, aito) for aito in Aito])
-# EPio = np.array([integrate(times_LRM, epratei) for epratei in EPrateio])
-
-# for a, b in zip (EPi[0], EPio[2]):
-# 	print(np.round(a,5), np.round(b,5))
 
 # odd_EP, even_EP = group_vals_t(odd_even_LRM[0], EPu), group_vals_t(odd_even_LRM[1], EPu)
 
@@ -428,3 +501,25 @@ print('Calculated all bounds')
 # print("A")
 # for a, aphi, aomega, aalpha in zip (Asys, Au[0], Au[1], Au[2]):
 # 	print(a, aomega + aalpha - aphi)
+
+
+# *****************************************************************
+
+# def get_subsystem_contribs_to_unit(all_subsystem_contribs, unit):
+# 	return np.array([all_subsystem_contribs[suborder_LRM[s]] for s in units_LRM[uind[unit]]])
+
+# Ai_units = np.array([get_subsystem_contribs_to_unit(Ai, u) for u in uind.keys()])
+# EPi_units = np.array([get_subsystem_contribs_to_unit(EPi, u) for u in uind.keys()])
+
+# Ai_omega, Ai_alpha, Ai_psi = [get_subsystem_contribs_to_unit(Ai, u) for u in ["omega", "alpha", "psi"]]
+# EPi_omega, EPi_alpha, EPi_psi = [get_subsystem_contribs_to_unit(EPi, u) for u in ["omega", "alpha", "psi"]]
+
+
+# unit_local_tau_bounds = np.array([np.array([classical_tau_bound(l, a, ep) 
+# 								for l, a, ep in zip(Lu[u][1:], Au[u][1:], EPu[u][1:])]) 
+# 									for u in unit_iter])
+
+# phi_tau_bounds, omega_tau_bounds, alpha_tau_bounds, beta_tau_bounds, psi_tau_bounds = unit_local_tau_bounds
+
+
+# print('Calculated unit-local bounds')

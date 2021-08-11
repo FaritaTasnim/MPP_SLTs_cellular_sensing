@@ -66,14 +66,9 @@ colors = {	'actual': '#2f4f4f',
 			'mpp_psi': '#808000'}
 
 subplot_1_keys = ['global', 'mpp', 'sub_1', 'sub_2', 'sub_3', 'sub_4']
-subplot_2_keys = ['global', 'mpp_omega', 'sub_1', 'sub_2', 'sub_3']
-subplot_3_keys = ['global', 'mpp_alpha', 'sub_3', 'sub_4']
-subplot_4_keys = ['global', 'mpp_phi', 'sub_3']
-subplot_5_keys = ['global', 'mpp_beta', 'sub_2', 'sub_3']
-subplot_6_keys = ['global', 'mpp_psi', 'sub_2', 'sub_3', 'sub_4']
-subplot_7_keys = ['global', 'mpp', 'mpp_phi', 'mpp_omega', 'mpp_alpha', 'mpp_beta', 'mpp_psi']
+subplot_2_keys = ['global', 'mpp', 'mpp_phi', 'mpp_omega', 'mpp_alpha', 'mpp_beta', 'mpp_psi']
 
-first_plot_keys = [subplot_1_keys, subplot_7_keys]
+first_plot_keys = [subplot_1_keys, subplot_2_keys]
 first_plot_tags = ['subs', 'mpps']
 
 first_bounds_to_plot = []
@@ -86,19 +81,3 @@ for plot_keys, plot_tag in zip(first_plot_keys, first_plot_tags):
 	first_bound_colors_to_plot.append([colors[x] for x in ['actual'] + plot_keys])
 
 plot_bounds(times_LRM*1000, actual, actual_name, first_bounds_to_plot, first_bound_names_to_plot, first_bound_colors_to_plot, 'main', (10,4))
-
-
-
-second_plot_keys = [subplot_2_keys, subplot_3_keys, subplot_4_keys, subplot_5_keys, subplot_6_keys]
-second_plot_tags = ['omega', 'alpha', 'phi', 'beta', 'psi']
-
-second_bounds_to_plot = []
-second_bound_names_to_plot = []
-second_bound_colors_to_plot = []
-
-for plot_keys, plot_tag in zip(second_plot_keys, second_plot_tags):
-	second_bounds_to_plot.append([all_bounds[x] for x in plot_keys])
-	second_bound_names_to_plot.append([all_names[x] for x in plot_keys])
-	second_bound_colors_to_plot.append([colors[x] for x in ['actual'] + plot_keys])
-
-plot_bounds(times_LRM*1000, actual, actual_name, second_bounds_to_plot, second_bound_names_to_plot, second_bound_colors_to_plot, 'units', (25,4))

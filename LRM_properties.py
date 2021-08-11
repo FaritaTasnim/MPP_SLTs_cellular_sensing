@@ -79,7 +79,7 @@ uss_LRM = [get_marginal_joint_states(u, all_ss_LRM, suborder_LRM) for u in units
 # ******************************** Time Evolution Parameters ***************************************
 
 # times to evolve the prob dists over
-start, end, timestep = 0, 0.005500, 0.000050
+start, end, timestep = 0, 0.055000, 0.000050
 times_LRM = get_evolution_times(start, end, timestep, 8)
 # print(times_LRM)
 
