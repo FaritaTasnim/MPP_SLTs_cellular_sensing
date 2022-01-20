@@ -10,13 +10,13 @@ from LRM_rmat import *
 # sets the distribution types for each of the subsystem initial conditional distributions
 dist_types_LRM = {"l": norm,"r1": norm, "m": norm, "r2": norm}
 # takes a joint state and constructs the parameters for the initial conditional distributions
-dist_vars_LRM = {"l": lambda js: [0.0, 0.01],
-                "r1": lambda js: [exp(js["l"]-lmax)*Nr1, 0.5],
-                "m": lambda js: [exp(js["l"]-lmax)*Nm, 1],
-                "r2": lambda js: [exp(js["l"]-lmax)*Nr2, 0.7]}
+dist_vars_LRM = {"l": lambda js: [0, 0.5],
+                "r1": lambda js: [exp(js["l"]-lmax)*Nr1, 2],
+                "m": lambda js: [exp(js["l"]-lmax)*Nm, 3],
+                "r2": lambda js: [exp(js["l"]-lmax)*Nr2, 3]}
 
 # constructs the t=0 joint probability distribution given the subsystem conditional distributions
-jpd_LRM_0 = construct_joint_prob_dist(jss_LRM, all_ss_LRM, bin_edges_LRM, 10000, 
+jpd_LRM_0 = construct_joint_prob_dist(jss_LRM, all_ss_LRM, bin_edges_LRM, 10000,
 													suborder_LRM, dist_types_LRM, dist_vars_LRM, 10)
 
 print('Constructed initial probability distributions')
@@ -24,19 +24,18 @@ print('Constructed initial probability distributions')
 # ************************** Probability Distributions, All Times **********************************
 
 # generate joint, unit, and subsystem probability distributions under actual rate matrix
-jpds_LRM, all_upds_LRM, all_spds_LRM = evolve_whole_system_prob_dists(jpd_LRM_0, K_LRM, times_LRM, 
+jpds_LRM, all_upds_LRM, all_spds_LRM = evolve_whole_system_prob_dists(jpd_LRM_0, K_LRM, times_LRM,
 											units_LRM, uss_LRM, jss_LRM, suborder_LRM, all_ss_LRM)
-
-# jpds_LRM, all_upds_LRM2, all_spds_LRM = evolve_whole_system_prob_dists(jpd_LRM_0, K_LRM, times_LRM, 
-# 											units_LRM2, uss_LRM2, jss_LRM, suborder_LRM, all_ss_LRM)
 
 print('Evolved probability distributions over time')
 
 
-
-
 # *********************************** Sanity Checks ************************************************
 
+# later, figure out which is faster, getting the unit marginals from evolving the system prob dist,
+# or evolving the marginal unit prob dists directly themselves
+
+# come back to trying binom and uniform later
 
 # dist_types_LRM = {"l": randint,"r1": binom, "m": binom, "r2": binom}
 # # takes a joint state and constructs the parameters for the initial conditional distributions
@@ -45,7 +44,7 @@ print('Evolved probability distributions over time')
 # 				"m": lambda js: [Nm, js["r1"]/Nr1],
 # 				"r2": lambda js: [Nr2, js["l"]]}
 
-# jpd_LRM_0 = construct_joint_prob_dist_directly(jss_LRM, all_ss_LRM, suborder_LRM, 
+# jpd_LRM_0 = construct_joint_prob_dist_directly(jss_LRM, all_ss_LRM, suborder_LRM,
 # 													dist_types_LRM, dist_vars_LRM, 10)
 
 
@@ -64,10 +63,10 @@ print('Evolved probability distributions over time')
 # 			upd.append(get_marginal_distribution(units_LRM[u], jpds_LRM_t, jss_LRM, all_ss_LRM, suborder_LRM))
 # 		for s, spd in zip(suborder_LRM.keys(), spds_LRM):
 # 			spd.append(get_marginal_distribution([s], jpds_LRM_t, jss_LRM, all_ss_LRM, suborder_LRM))
-	
+
 # 	plt.plot(jpds_LRM_t)
 # 	print(sum(jpds_LRM_t))
-# plt.show() 
+# plt.show()
 
 # for u in range(len(units_LRM)):
 # 	upd = upds_LRM[u]
@@ -100,7 +99,7 @@ print('Evolved probability distributions over time')
 # tries to come back to
 
 # def get_all_cond_ddists(dist_types, dist_vars, all_ss, state):
-# 	return [dist_type(*dist_var(state)).pmf(ss) 
+# 	return [dist_type(*dist_var(state)).pmf(ss)
 # 				for dist_type, dist_var, ss in zip(dist_types, dist_vars, all_ss)]
 
 # def construct_joint_prob_dist():
@@ -119,10 +118,10 @@ print('Evolved probability distributions over time')
 # # ********* Counterfactual Probability Distributions, All Times, Unit Structure 1 ******************
 
 # # generate joint, unit, and subsystem probability distributions under counterfactual rate matrices
-# jpds_N_omega, all_upds_N_omega, all_spds_N_omega = evolve_whole_system_prob_dists(jpd_LRM_0, 
+# jpds_N_omega, all_upds_N_omega, all_spds_N_omega = evolve_whole_system_prob_dists(jpd_LRM_0,
 # 						K_N_omega, times_LRM, units_LRM, uss_LRM, jss_LRM, suborder_LRM, all_ss_LRM)
 
-# jpds_N_alpha, all_upds_N_alpha, all_spds_N_alpha = evolve_whole_system_prob_dists(jpd_LRM_0, 
+# jpds_N_alpha, all_upds_N_alpha, all_spds_N_alpha = evolve_whole_system_prob_dists(jpd_LRM_0,
 # 						K_N_alpha, times_LRM, units_LRM, uss_LRM, jss_LRM, suborder_LRM, all_ss_LRM)
 
 # omegapd_0 = all_upds_LRM[uind['omega']][0]
@@ -141,7 +140,7 @@ print('Evolved probability distributions over time')
 # # generate joint, unit, and subsystem probability distributions under counterfactual rate matrices
 # jpds_N_omega, all_upds_N_omega, all_spds_N_omega = jpds_N_omega, all_upds_N_omega, all_spds_N_omega
 
-# jpds_N_beta, all_upds_N_beta, all_spds_N_beta = evolve_whole_system_prob_dists(jpd_LRM_0, 
+# jpds_N_beta, all_upds_N_beta, all_spds_N_beta = evolve_whole_system_prob_dists(jpd_LRM_0,
 # 					K_N_beta, times_LRM, units_LRM2, uss_LRM2, jss_LRM, suborder_LRM, all_ss_LRM)
 
 # omegapd_0 = all_upds_LRM2[uind2['omega']][0]

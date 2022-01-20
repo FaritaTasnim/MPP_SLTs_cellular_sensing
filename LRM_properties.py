@@ -8,12 +8,7 @@ from tools import *
 # values are taken from Hartrich, Seifert, 2016 paper on sensor capacity
 
 # defining parameters for subsystem state spaces
-lmax, Nr1, Nm, Nr2 = 1, 3, 5, 3 
-
-# ss_mins_LRM = [-1, 0, 0, 0]
-# ss_maxes_LRM = [lmax, Nr1, Nm, Nr2]
-# ss_steps_LRM = [0.25, 1, 1, 1]
-# dl = ss_steps_LRM[0]
+Nm, Nr1, lmax, Nr2 = 5, 3, 1, 3
 
 ss_mins_LRM = [0, 0, -1, 0]
 ss_maxes_LRM = [Nm, Nr1, lmax, Nr2]
@@ -21,11 +16,9 @@ ss_steps_LRM = [1, 1, 0.25, 1]
 dl = ss_steps_LRM[2]
 
 # energy in kT required to bind a ligand to a receptor
-# energy in kT required to process an ATP
 konoff_ratio = 1.0
 s_0 = 1/konoff_ratio
 DeltaF = lambda l: l + np.log(konoff_ratio*s_0)
-# DeltaF_ATP = 4
 
 # rates
 w_l, v_r = 1, 10
@@ -35,19 +28,12 @@ D_l = 0.1
 D_r1 = 4*w_r/Nr1
 B_r1 = D_r1/D_l
 
-# print(sqrt(1 + ((v_r)**2)/(B_r1)))
-
-# v_mminus = sqrt(1 + ((v_r)**2)/(B_r1))
-# print(v_mminus)
 v_mminus, v_mplus = .1, .2
-kminus, kplus = .3, .2 
-# v_mplus = ((kminus*v_mminus)/(kplus)) * exp(DeltaF_ATP)
-# print(v_mplus)
+kminus, kplus = .3, .2
 
 # *********************************** Subsystems and Units *****************************************
 
 # subsystem name : index for each subsystem in system
-# suborder_LRM = {"l": 0, "r1": 1, "m": 2, "r2": 3}
 suborder_LRM = {"m": 0, "r1": 1, "l": 2, "r2": 3}
 
 # list of units in considered unit structure
@@ -61,10 +47,10 @@ uind = {'phi': 0, 'omega': 1, 'alpha': 2, 'beta': 3, 'psi': 4}
 # ******************* State Spaces for Subsystems, Units, and Total System *************************
 
 ss_iter = range(len(suborder_LRM))
-all_ss_LRM = [get_subsystem_states(ss_mins_LRM[i], 
-									ss_maxes_LRM[i], 
+all_ss_LRM = [get_subsystem_states(ss_mins_LRM[i],
+									ss_maxes_LRM[i],
 									ss_steps_LRM[i], 5) for i in ss_iter]
-bin_edges_LRM = [get_bin_edges(state_space, subsystem_step) 
+bin_edges_LRM = [get_bin_edges(state_space, subsystem_step)
 					for state_space, subsystem_step in zip(all_ss_LRM, ss_steps_LRM)]
 
 # generate joint state space for full system
@@ -72,16 +58,12 @@ jss_LRM = get_joint_states(all_ss_LRM)
 
 # generate state spaces for units in the unit structure
 uss_LRM = [get_marginal_joint_states(u, all_ss_LRM, suborder_LRM) for u in units_LRM]
-# uss_LRM2 = [get_marginal_joint_states(u, all_ss_LRM, suborder_LRM) for u in units_LRM2]
-
-# print('num joint states', len(jss_LRM))
 
 # ******************************** Time Evolution Parameters ***************************************
 
 # times to evolve the prob dists over
-start, end, timestep = 0, 0.055000, 0.000050
+start, end, timestep = 0, 0.055500, 0.000050
 times_LRM = get_evolution_times(start, end, timestep, 8)
-# print(times_LRM)
 
 # ********************************** Rate Matrix Functions *****************************************
 
@@ -99,4 +81,3 @@ rmf_m = {	1: lambda js: (js["r1"]*kplus + v_mminus) * (Nm - js["m"]),
 rmf_r2 = {	1: lambda js: (w_r*exp(DeltaF(js["l"]))) * (Nr2 - js["r2"]),
     		-1: lambda js: (w_r * (js["r2"]))}
 rmfs_LRM = [rmf_m, rmf_r1, rmf_l, rmf_r2]
-
